@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>DIC 阅读页</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--bg:#fff;--fg:#17284a;--muted:#5b6b8a;--accent:#2f6fed;--tint:#eef3fd;--line:#d8e2f4}
+@media(prefers-color-scheme:dark){:root{--bg:#141c2e;--fg:#e6edfb;--muted:#9db0d3;--accent:#7ba6ff;--tint:#1c2740;--line:#2a3752}}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",Georgia,serif}
+header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 20px;display:flex;gap:12px;align-items:center;font-size:14px}
+header b{font-weight:650}header input[type=file]{display:none}
+button,label.btn{font:inherit;font-size:14px;color:var(--accent);background:var(--tint);border:1px solid var(--line);border-radius:8px;padding:5px 12px;cursor:pointer}
+main{max-width:720px;margin:0 auto;padding:28px 20px 120px}
+textarea{width:100%;min-height:200px;font:inherit;color:inherit;background:var(--tint);border:1px solid var(--line);border-radius:10px;padding:14px;box-sizing:border-box;resize:vertical}
+#doc p{margin:0 0 1em}.hint{color:var(--muted);font-size:14px}
+</style></head><body>
+<header><b>DIC 阅读页</b><label class="btn">打开 .txt / .md<input id="file" type="file" accept=".txt,.md,text/plain,text/markdown"></label><button id="render">开始阅读</button><button id="clear">清空</button><span class="hint">停在英文词上或选中任意文字即可查询</span></header>
+<main><textarea id="src" placeholder="把要读的文本粘贴到这里，然后点“开始阅读”。"></textarea><div id="doc"></div></main>
+<script src="reader.js"></script><script src="content.js"></script></body></html>
