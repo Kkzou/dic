@@ -24,10 +24,15 @@
   let hoverTimer = 0, leaveTimer = 0, deepTimer = 0, hoverWord = '';
 
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  // 扩展被重载/更新后，旧页面里的内容脚本成为"孤儿"：sendMessage 会同步抛出 "Extension context invalidated"。
+  // 必须捕获，否则 Promise 永远不 resolve，骨架屏永远不消失。
+  const STALE = { ok: false, code: 'SERVICE_DOWN', message: 'DIC 已更新，请刷新此页面' };
+  const DOWN = { ok: false, code: 'SERVICE_DOWN', message: 'DIC 服务未启动' };
   const send = (msg) => new Promise((res) => {
-    rt.sendMessage(msg, (r) => {
-      if (chrome.runtime.lastError) rt.sendMessage(msg, (r2) => res(chrome.runtime.lastError ? { ok: false, code: 'SERVICE_DOWN', message: 'DIC 服务未启动' } : r2)); // worker 被唤醒后重试一次
-      else res(r);
+    const once = (cb) => { try { rt.sendMessage(msg, cb); } catch { res(STALE); } };
+    once((r) => {
+      if (!chrome.runtime.lastError && r) return res(r);
+      once((r2) => res(chrome.runtime.lastError || !r2 ? DOWN : r2)); // worker 被唤醒后重试一次
     });
   });
 
