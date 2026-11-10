@@ -8,7 +8,7 @@
   <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-2f6fed">
 </p>
 
-> **English summary** — DIC is a Chrome/Edge (Manifest V3) extension that explains the word, acronym or phrase under your cursor *in the context of the sentence it appears in*, using Gemini. A zero-dependency local Node gateway holds the API key so the browser never sees it. Built with vanilla JS, no build step, no frameworks. Developed as a learning project in collaboration with Claude / Claude Code — see [§ 开发过程](#开发过程与-ai-协作).
+> **English summary** — DIC is a Chrome/Edge (Manifest V3) extension that explains the word, acronym or phrase under your cursor *in the context of the sentence it appears in*, using Gemini. Bring your own Gemini API key (BYOK): paste it once in the options page and you're done — no server, no build step, no frameworks, zero runtime dependencies. An optional zero-dependency local Node gateway is available for users who prefer to keep the key out of the browser. Developed as a learning project in collaboration with Claude / Claude Code — see [§ 开发过程](#开发过程与-ai-协作).
 
 ---
 
@@ -39,29 +39,31 @@ DIC 的做法：鼠标停在词上 0.6 秒，原位弹出一个小窗，把**这
 
 仓库自带一篇示例文章 `demo/sample-article.html`（故意堆满缩写），跑起来后直接用它演示。
 
-## 5 分钟跑起来（macOS）
+## 安装（2 分钟，不需要装任何东西）
 
-**前提**：Node.js ≥ 22、Chrome 或 Edge、一个 Gemini API Key（https://aistudio.google.com/apikey ，有免费额度）。
+1. 下载本仓库（GitHub 页面右上角 **Code → Download ZIP**，解压），或 `git clone https://github.com/Kkzou/dic.git`
+2. Chrome 打开 `chrome://extensions` → 右上角开「开发者模式」→「加载已解压的扩展程序」→ 选 `extension/` 文件夹
+3. 点扩展图标进设置页，粘贴你的 Gemini API Key（免费申请：https://aistudio.google.com/apikey ）。状态变成 *已连接 Gemini ✓* 即可
+4. 打开任何英文文章，把鼠标停在一个词上 0.6 秒
+
+Key 只保存在你这台电脑的浏览器本地存储里，只发往 Google，不经过任何第三方服务器。
+
+想用自带的演示文章 `demo/sample-article.html`：在 `chrome://extensions` → DIC → 详情 → 打开「允许访问文件网址」。
+
+<details>
+<summary><b>进阶：本机网关模式</b>（不想把 Key 放进浏览器时）</summary>
+
+需要 Node.js ≥ 22。Key 写在电脑的 `.env.local`，浏览器从头到尾拿不到它。
 
 ```bash
-git clone https://github.com/Kkzou/dic.git
 cd dic
 cp .env.example .env.local
 ```
 
-用任意编辑器打开 `.env.local`，把 `GEMINI_API_KEY=replace_me` 换成真实 Key。然后：
+用编辑器把 `.env.local` 里的 `GEMINI_API_KEY=replace_me` 换成真实 Key，然后 `npm start`。看到 `DIC 网关已启动` 后，在扩展设置页把「连接方式」切到「通过本机网关」。终端窗口保持打开。
 
-```bash
-npm start
-```
-
-看到 `DIC 网关已启动：http://127.0.0.1:8787` 即可，终端保持打开。
-
-加载扩展：Chrome 打开 `chrome://extensions` → 右上角开「开发者模式」→「加载已解压的扩展程序」→ 选本仓库的 `extension/` 文件夹。点扩展图标进设置页 → 「测试连接」应显示 *已连接 ✓*。
-
-打开 `demo/sample-article.html`（要允许扩展访问文件网址：`chrome://extensions` → DIC → 详情 → 打开「允许访问文件网址」），或任何英文文章，把鼠标停在一个词上。
-
-**没有 Key 也能看效果**：`npm run start:mock` 以 mock 模式启动，不联网，返回固定示例内容，用于离线演示和自动测试。
+没有 Key 也能看交互：`npm run start:mock` 以 mock 模式启动，不联网，返回固定示例。
+</details>
 
 ## 用法
 
@@ -80,33 +82,44 @@ npm start
 ## 架构
 
 ```
- 浏览器                                          你的电脑                      Google
-┌────────────────────────────────────────┐    ┌──────────────────────┐    ┌─────────┐
-│ 网页                                   │    │ server/server.mjs    │    │         │
-│  └ content.js  取词 · 上下文 · 弹窗    │    │ 127.0.0.1:8787       │    │ Gemini  │
-│       │ chrome.runtime.sendMessage     │    │                      │    │   API   │
-│       ▼                                │    │ 校验 → 限流 → 提示词  │    │         │
-│  background.js  唯一网络出口 · LRU 缓存 │───▶│ → fetch → schema 校验 │───▶│         │
-│                 (Origin = chrome-ext://)│◀───│ ← 统一错误码          │◀───│         │
-└────────────────────────────────────────┘    └──────────────────────┘    └─────────┘
-                                                 ▲ .env.local（API Key 只在这里）
+ 浏览器                                                              Google
+┌─────────────────────────────────────────────────────┐          ┌─────────┐
+│ 网页                                                │          │         │
+│  └ content.js   取词 · 句子/上下文提取 · Shadow DOM 弹窗 │          │         │
+│        │ chrome.runtime.sendMessage                  │          │ Gemini  │
+│        ▼                                            │  BYOK    │   API   │
+│  background.js  唯一网络出口 · LRU 缓存              │─────────▶│         │
+│        │ import                                     │          │         │
+│  core.js        校验 · 提示词 · schema · 解析 · 限流  │          │         │
+└─────────────────────────────────────────────────────┘          └─────────┘
+          │ 进阶模式                                                  ▲
+          ▼                                                          │
+┌─────────────────────────────────────────────────────┐              │
+│ server/server.mjs  127.0.0.1:8787（Node，零依赖）     │──────────────┘
+│   └ import ../extension/core.js   ← 同一份逻辑         │
+│   .env.local（Key 只在这里）                          │
+└─────────────────────────────────────────────────────┘
 ```
+
+`core.js` 是关键：校验、提示词、schema、解析、限流、自动重试这些"围绕模型的工程"只写一份，扩展和网关 `import` 的是同一个文件。换运行位置不换逻辑。
 
 每次请求只发送：选中词（≤200 字符）、所在句子（≤500）、前后各 ≤400 字符上下文。不发整页，不记录历史，无遥测。
 
 ```
 extension/
-  manifest.json     MV3 清单：仅 storage 权限 + 本地网关 host 权限
-  background.js     Service worker：扩展里唯一发网络请求的地方；内存 + session 两级 LRU 缓存（100 条 / 24h）
+  manifest.json     MV3 清单：仅 storage 权限 + Gemini / 本地网关两个 host 权限
+  core.js           共享核心：校验、系统提示词、responseSchema、请求体、解析、错误码、限流、失败重试
+  background.js     Service worker（ES module）：扩展里唯一发网络请求的地方；BYOK 直连 / 网关转发；两级 LRU 缓存（100 条 / 24h）
   content.js        内容脚本：caretPositionFromPoint 取词 → 句子/上下文提取 → Shadow DOM 弹窗 → 状态机 → Deep Loop → 嵌套
   content.css       弹窗样式（蓝色调，跟随系统深浅色，adoptedStyleSheets 注入）
-  options.*         设置页：服务状态、唤醒方式、解释语言
+  options.*         设置页：连接方式（BYOK / 网关）、API Key、模型名、连接测试、唤醒方式、解释语言
   reader.*          阅读页：粘贴 / 打开 txt、md
   icons/            图标
 server/
-  server.mjs        本地网关：GET /health、POST /explain；CORS 仅放行扩展来源；30 次/分钟限流；15 s 超时；mock 模式
+  server.mjs        可选本地网关（70 行 HTTP 壳）：GET /health、POST /explain；CORS 仅放行扩展来源；mock 模式
 tests/
-  smoke.mjs         13 项自动化 smoke 测试（mock 模式，零依赖）
+  core.test.mjs     12 项 core.js 单元测试（node:test，用假 fetch 覆盖重试 / 超时 / 错误码映射）
+  smoke.mjs         13 项网关 smoke 测试（mock 模式）
   manual-checklist.md  18 项人工验收清单
 demo/
   sample-article.html  演示用英文文章
@@ -117,11 +130,14 @@ CLAUDE.md           Claude Code 每次启动自动读取的 13 条长期规则
 
 ## 关键设计决策
 
-**为什么要一个本地网关，而不是扩展直接调 Gemini？**
-API Key 放进扩展就等于公开。网关跑在本机 `127.0.0.1`，Key 只存在 `.env.local`（已被 `.gitignore` 排除），浏览器从头到尾拿不到它。网关同时承担校验、限流、超时和输出规范化，扩展端只需要处理 7 个固定错误码。
+**为什么默认是 BYOK（用户自带 Key）直连，而不是我架一个服务？**
+v0.2 之前每个用户都要装 Node、开终端、建 `.env.local`——能完成的只有开发者。根因是"本地网关"这个设计：它保护的是**我的** Key。如果 Key 是用户自己的，它就该待在用户自己的浏览器里（`chrome.storage.local`，只发往 Google）。这样安装从六步变两步，可以上架商店，费用各付各的，我也不用做账号和防刷。代价是 Key 存在扩展本地存储，比存在电脑文件里略弱，这是 BYOK 类扩展的通行做法；介意的用户可以切到网关模式。
+
+**为什么还保留本地网关？**
+两个理由：一是给不想把 Key 放进浏览器的人一个选项；二是它和扩展共用 `core.js`，是同一套逻辑在 Node 里的运行形态，`npm test` 用它做自动化 smoke 测试，不需要起浏览器。
 
 **为什么所有网络请求都走 `background.js`？**
-MV3 下内容脚本发请求时携带的 Origin 是宿主网页的域名，不是 `chrome-extension://`，本地网关的 CORS 白名单会把它拦掉（v1 方案就死在这里）。改成由 service worker 统一出口后，Origin 正确，缓存也只需维护一份。
+MV3 下内容脚本发请求时携带的 Origin 是宿主网页的域名，不是 `chrome-extension://`，本地网关的 CORS 白名单会把它拦掉（v1 方案就死在这里）。改成由 service worker 统一出口后，Origin 正确，缓存和限流也只需维护一份；BYOK 模式下 Key 也只在 service worker 里出现，内容脚本（跑在网页里）永远碰不到它。
 
 **为什么用 Gemini 的 `responseSchema` 而不是靠提示词约束 JSON？**
 靠提示词"请只输出 JSON"在长文本里会漂。把结构交给 API 层强制（`responseMimeType: application/json` + schema），再在网关做一次 `normalize()` 兜底，前端就可以放心用 `textContent` 渲染而完全不碰 `innerHTML`。
@@ -141,7 +157,7 @@ MV3 下内容脚本发请求时携带的 Origin 是宿主网页的域名，不�
 npm test
 ```
 
-先对所有 JS 做 `node --check`，再以 mock 模式拉起网关跑 `tests/smoke.mjs`：健康检查、字段校验、超长输入、非法 JSON、CORS 白名单、预检、404、错误码枚举，共 13 项。浏览器侧交互（骨架屏 < 100 ms、快速连续悬停不串词、Deep 不重复请求、嵌套 3 层上限等）按 `tests/manual-checklist.md` 逐项人工验收。
+三层：`node --check` 全部 JS → `tests/core.test.mjs` 12 项单元测试（用假 `fetch` 覆盖成功、坏 JSON 自动重试一次、两次坏输出放弃、429 / 网络异常 / 超时的错误码映射、限流窗口）→ `tests/smoke.mjs` 以 mock 模式拉起网关跑 13 项 HTTP 测试。另有无头 Chromium 加载扩展的端到端检查（service worker 启动、设置页、悬停弹窗）在发布前手动跑。浏览器侧交互按 `tests/manual-checklist.md` 逐项人工验收。
 
 ## 开发过程与 AI 协作
 
@@ -159,7 +175,7 @@ npm test
 - 跨域 iframe 内的文字不生效。
 - Chrome 内置页面、扩展商店页面、PDF 查看器不生效。
 - 悬停取词依赖 `caretPositionFromPoint`，个别自定义渲染的页面（如 Canvas 文本）无法取词。
-- 若 Gemini 返回 404，请在 `.env.local` 把 `GEMINI_MODEL` 改为当前可用的 flash-lite 型号（定价与型号以 https://ai.google.dev/gemini-api/docs/pricing 为准）。
+- 若测试连接提示模型不存在，在设置页「模型」栏（网关模式则在 `.env.local` 的 `GEMINI_MODEL`）填入当前可用的 flash-lite 型号名（定价与型号以 https://ai.google.dev/gemini-api/docs/pricing 为准）。
 
 ## License
 

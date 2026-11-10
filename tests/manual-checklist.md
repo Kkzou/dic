@@ -22,6 +22,10 @@
 | 16 | 深色模式可读 | 系统切深色 | 未测 | |
 | 17 | 严格 CSP 站点可用 | 在 github.com 某 README 页悬停 | 未测 | |
 | 18 | 内容脚本体积 < 30 KB | `wc -c extension/content.js extension/content.css` | 通过 | 13.4 KB + 2.7 KB（2026-11-01） |
-| 19 | 网关 smoke 测试 | `npm test` | 通过 | 13/13（2026-11-01，mock 模式） |
+| 19 | 网关 smoke 测试 + core 单元测试 | `npm test` | 通过 | 12/12 + 13/13（2026-11-10） |
+| 20 | BYOK：无 Key 时设置页提示、悬停弹窗显示 NO_API_KEY 文案 + 打开设置 | 清空 Key 后悬停 | 通过 | 无头 Chromium e2e（2026-11-10） |
+| 21 | BYOK：填真实 Key 后「测试连接」显示已连接 Gemini ✓，悬停出解释 | 设置页粘贴 Key | 未测 | 需真实 Key |
+| 22 | 网关模式切换后仍可用 | 设置页切到网关 + `npm start` | 未测 | |
+| 23 | Key 不出现在内容脚本与页面：`content.js` 不含 `geminiApiKey` | `git grep geminiApiKey extension/content.js` 无结果 | 通过 | 2026-11-10 |
 
 **已在无浏览器环境验证（2026-09-25）**：`node --check` 全部通过；网关 `/health`、`/explain` 字段校验、CORS 仅放行 `chrome-extension://` 与 localhost、预检 204、缺 Key 返回 `NO_API_KEY`。
