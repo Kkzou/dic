@@ -173,11 +173,20 @@
   }
 
   // ---------- 事件 ----------
+  // 预热：MV3 service worker 空闲 30 s 会被杀，唤醒要 100–300 ms。鼠标在候选词上停 200 ms 就先 ping 一下，
+  // 等 600 ms 真正触发时 worker 已经醒了。20 s 内只 ping 一次。
+  let warmTimer = 0, lastWarm = 0;
+  const prewarm = (x, y) => {
+    if (Date.now() - lastWarm < 20000) return;
+    const w = wordAt(x, y); if (!w || !candidate(w.word)) return;
+    lastWarm = Date.now(); try { rt.sendMessage({ type: 'ping' }, () => void chrome.runtime.lastError); } catch {}
+  };
   document.addEventListener('pointermove', (e) => {
     if (cfg.trigger === 'select') return;
-    if (cfg.trigger === 'alt' && !e.altKey) { clearTimeout(hoverTimer); return; }
-    if (e.composedPath().includes(host)) { clearTimeout(hoverTimer); return; }
-    clearTimeout(hoverTimer);
+    if (cfg.trigger === 'alt' && !e.altKey) { clearTimeout(hoverTimer); clearTimeout(warmTimer); return; }
+    if (e.composedPath().includes(host)) { clearTimeout(hoverTimer); clearTimeout(warmTimer); return; }
+    clearTimeout(hoverTimer); clearTimeout(warmTimer);
+    if (state === 'idle') warmTimer = setTimeout(() => prewarm(e.clientX, e.clientY), 200);
     hoverTimer = setTimeout(() => {
       const w = wordAt(e.clientX, e.clientY);
       if (!w || !candidate(w.word)) return;

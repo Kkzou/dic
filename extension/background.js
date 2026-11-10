@@ -57,12 +57,14 @@ async function explainViaGateway(payload) {
 }
 
 async function explain(payload) {
+  const t0 = performance.now();
   const key = await hashKey(payload);
   const cached = await cacheGet(key);
-  if (cached) return { ok: true, cached: true, result: cached };
+  if (cached) { console.debug(`[DIC] ${payload.term} ${payload.depth} cache ${(performance.now() - t0).toFixed(0)}ms`); return { ok: true, cached: true, result: cached }; }
   const s = await settings();
   const data = s.mode === 'gateway' ? await explainViaGateway(payload) : await explainDirect(payload, s);
   if (data.ok) cacheSet(key, data.result);
+  console.debug(`[DIC] ${payload.term} ${payload.depth} ${s.mode} ${(performance.now() - t0).toFixed(0)}ms${data.retried ? ' retried' : ''}${data.ok ? '' : ' ' + data.code}`);
   return { ...data, requestId: payload.requestId ?? null };
 }
 
@@ -89,6 +91,7 @@ async function health() {
 
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   if (msg?.type === 'explain') explain(msg.payload).then(reply);
+  else if (msg?.type === 'ping') reply({ ok: true }); // 预热：内容脚本在悬停早期发来，只为唤醒 worker
   else if (msg?.type === 'health') health().then(reply);
   else if (msg?.type === 'openOptions') chrome.runtime.openOptionsPage().then(() => reply({ ok: true }));
   else return false;

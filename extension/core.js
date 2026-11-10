@@ -108,7 +108,7 @@ export function parseGeminiResponse(data, term) {
 
 // 完整的一次调用：fetch 由调用方注入（浏览器和 Node 的 fetch 都行）。返回 { ok, result } 或错误对象。
 // 对 BAD_MODEL_OUTPUT 自动重试一次（模型偶发截断 JSON）。
-export async function callGemini({ apiKey, model, value, fetchFn = fetch, retry = 1 }) {
+export async function callGemini({ apiKey, model, value, fetchFn = fetch, retry = 1, _attempt = 0 }) {
   let res;
   try {
     res = await fetchFn(geminiUrl(model), {
@@ -126,10 +126,10 @@ export async function callGemini({ apiKey, model, value, fetchFn = fetch, retry 
   try { data = await res.json(); } catch { data = null; }
   const result = data ? parseGeminiResponse(data, value.term) : null;
   if (!result) {
-    if (retry > 0) return callGemini({ apiKey, model, value, fetchFn, retry: retry - 1 });
+    if (retry > 0) return callGemini({ apiKey, model, value, fetchFn, retry: retry - 1, _attempt: _attempt + 1 });
     return err('BAD_MODEL_OUTPUT');
   }
-  return { ok: true, result };
+  return { ok: true, result, retried: _attempt > 0 };
 }
 
 // 滑动窗口限流：每分钟最多 perMinute 次
