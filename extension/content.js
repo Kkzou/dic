@@ -194,7 +194,7 @@
     trigger(text, r.startContainer, r.startOffset, r.getBoundingClientRect(), true);
   }
   document.addEventListener('pointerup', () => requestAnimationFrame(readSelection), true);
-  document.addEventListener('keyup', (e) => { if (e.key.startsWith('Arrow') && e.shiftKey) readSelection(); });
+  document.addEventListener('keyup', (e) => { if (e.key?.startsWith('Arrow') && e.shiftKey) readSelection(); });
 
   document.addEventListener('pointerdown', (e) => {
     if (e.composedPath().includes(host)) { pinned = true; return; }
