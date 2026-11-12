@@ -5,7 +5,7 @@
   <img alt="Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-2f6fed">
   <img alt="Node 22+" src="https://img.shields.io/badge/Node-%E2%89%A522-2f6fed">
   <img alt="Runtime deps 0" src="https://img.shields.io/badge/runtime%20deps-0-2f6fed">
-  <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-2f6fed">
+  <img alt="Proprietary" src="https://img.shields.io/badge/license-proprietary-2f6fed">
 </p>
 
 > **English summary** — DIC is a Chrome/Edge (Manifest V3) extension that explains the word, acronym or phrase under your cursor *in the context of the sentence it appears in*, using Gemini. Bring your own Gemini API key (BYOK): paste it once in the options page and you're done — no server, no build step, no frameworks, zero runtime dependencies. An optional zero-dependency local Node gateway is available for users who prefer to keep the key out of the browser. Developed as a learning project in collaboration with Claude / Claude Code — see [§ 开发过程](#开发过程与-ai-协作).
@@ -187,6 +187,10 @@ npm test
 - 悬停取词依赖 `caretPositionFromPoint`，个别自定义渲染的页面（如 Canvas 文本）无法取词。
 - 若测试连接提示模型不存在，在设置页「模型」栏（网关模式则在 `.env.local` 的 `GEMINI_MODEL`）填入当前可用的 flash-lite 型号名（定价与型号以 https://ai.google.dev/gemini-api/docs/pricing 为准）。
 
-## License
+## 许可
 
-MIT © 2026 Yujia Zou
+专有软件，版权所有 © 2026 Yujia Zou，保留所有权利。未经书面许可不得使用、复制、修改或分发。
+
+许可历史：2026-11-01 至 2026-11-11 本仓库曾以 MIT 许可公开，截至提交 `b26d267`（v0.3.x）的版本在该期间获得的副本仍适用 MIT；自 v0.4.0（`34b12ab`）起的全部内容仅适用专有条款。详见 `LICENSE`。
+
+`.claude/skills/` 为第三方开发工具（MIT），不随扩展发布。

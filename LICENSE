@@ -1,21 +1,36 @@
-MIT License
+DIC — 上下文智能词典
+Copyright (c) 2026 Yujia Zou. All rights reserved.
+版权所有 (c) 2026 Yujia Zou。保留所有权利。
 
-Copyright (c) 2026 Yujia Zou
+PROPRIETARY SOFTWARE — NOT OPEN SOURCE
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This repository and its contents (the "Software") are proprietary and
+confidential. No licence or other right is granted to any person to use, copy,
+modify, merge, publish, distribute, sublicense, or sell the Software, in whole
+or in part, except under a separate written agreement signed by the copyright
+holder.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+IMPLIED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE.
+
+----------------------------------------------------------------------------
+LICENSING HISTORY (disclosed for accuracy)
+
+Between 2026-11-01 and 2026-11-11 this repository was public on GitHub and its
+LICENSE file was the MIT License. The snapshots published in that period — up
+to and including commit b26d267 (v0.3.x) — were released under the MIT License,
+and copies obtained during that period remain usable under MIT. That grant
+cannot be withdrawn and this file does not attempt to.
+
+Everything committed after b26d267, starting with v0.4.0 (commit 34b12ab), is
+covered only by the proprietary terms above.
+
+----------------------------------------------------------------------------
+THIRD-PARTY MATERIAL
+
+.claude/skills/ contains development tooling from
+github.com/quangpl/browser-extension-skills, licensed under the MIT License
+(see .claude/skills/LICENSE-browser-extension-skills). It is not part of the
+shipped extension and remains under its own licence.
