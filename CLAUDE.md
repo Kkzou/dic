@@ -15,3 +15,5 @@
 13. 不用 `innerHTML` 渲染任何模型输出。
 
 总控任务书在 `docs/DIC_CLAUDE_MASTER_PROMPT_v2.md`。可用技能在 `.claude/skills/`（来自 quangpl/browser-extension-skills，MIT）：extension-dev（跨上下文调试）、extension-manifest（权限）、extension-test、extension-ui。
+
+上架材料在 `store/`：`privacy-policy.html`（英文隐私政策，需发布到公开网址）与 `SUBMISSION.md`（商店后台各栏的填写内容）。**改动权限、网络请求目的地或发送给模型的数据范围时，必须同步修改这两份文件和引导页里的数据处理说明**，三者与代码不一致会导致拒审。

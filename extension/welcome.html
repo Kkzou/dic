@@ -23,6 +23,7 @@ ol{list-style:none;margin:0;padding:0}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 input{flex:1;min-width:220px;font:inherit;font-size:15px;color:inherit;background:var(--tint);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
 input:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.disclose{margin:0 0 14px;padding:12px 14px;border-radius:10px;background:var(--tint);border:1px solid var(--line)}.step .disclose p{margin:0 0 6px;font-size:13.5px;line-height:1.6;color:var(--fg)}.step .disclose p:last-child{margin:0;color:var(--muted)}
 #msg{min-height:22px;margin:10px 0 0;font-size:14.5px}#msg.bad{color:var(--bad)}#msg.ok{color:var(--ok)}
 #success{display:none;margin-top:8px;padding:22px;border-radius:14px;background:var(--tint);border:1px solid var(--line)}
 #success.show{display:block}
@@ -52,6 +53,10 @@ a{color:var(--accent)}
   <li class="step" id="s3"><div class="num">3</div><div>
     <h2>粘贴到 DIC，立即开始</h2>
     <p>回到这个页面，把密钥粘贴到下面的输入框。</p>
+    <div class="disclose" id="disclosure">
+      <p><b>DIC 如何处理页面文字：</b>当你把鼠标停在一个词上或选中文字时，DIC 会把这个词、它所在的句子和前后最多 800 个字符，用你的密钥直接发送给 Google 的 Gemini 接口来生成解释。不发送网址，不发送整页内容，也不会发送给我们。连接即表示你同意。</p>
+      <p lang="en"><b>How DIC handles page text:</b> when you pause on a word or select text, DIC sends that word, its sentence and up to 800 characters of surrounding text directly to Google's Gemini API, using your key, to generate the explanation. It does not send page URLs or whole pages, and nothing is sent to the developer. By connecting, you agree to this. <a href="https://PRIVACY_POLICY_URL" id="pp" target="_blank" rel="noopener">Privacy policy</a></p>
+    </div>
     <div class="row"><input id="key" type="password" placeholder="在这里粘贴 API Key" autocomplete="off" spellcheck="false" aria-label="Gemini API Key">
     <button class="btn" id="connect">Connect &amp; Start Reading</button></div>
     <div id="msg" role="status" aria-live="polite"></div>

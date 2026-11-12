@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>DIC — Privacy Policy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{margin:0;background:#fff;color:#17284a;font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+main{max-width:720px;margin:56px auto 96px;padding:0 20px}
+h1{font-size:28px;margin:0 0 4px}h2{font-size:19px;margin:36px 0 8px}
+.meta{color:#5b6b8a;margin:0 0 28px}table{border-collapse:collapse;width:100%;margin:8px 0 4px;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border:1px solid #d8e2f4}th{background:#eef3fd}
+code{background:#eef3fd;padding:1px 5px;border-radius:4px;font-size:14px}a{color:#2f6fed}
+@media(prefers-color-scheme:dark){body{background:#141c2e;color:#e6edfb}.meta{color:#9db0d3}th{background:#1c2740}th,td{border-color:#2a3752}code{background:#1c2740}a{color:#7ba6ff}}
+</style></head><body><main>
+<h1>DIC — Privacy Policy</h1>
+<p class="meta">Effective date: November 12, 2026</p>
+
+<p>DIC is a Chrome extension that explains a word or phrase on a web page in the context of the sentence it appears in. This policy describes what data DIC handles, where it goes, and what the developer of DIC does and does not receive.</p>
+
+<h2>Summary</h2>
+<ul>
+<li>DIC has no server of its own. The developer does not receive, store, or see your browsing data, the text you look up, or your API key.</li>
+<li>When you look up a word, DIC sends a small excerpt of the page text directly from your browser to Google's Gemini API, using an API key that you provide.</li>
+<li>DIC does not collect analytics, does not show ads, and does not sell or share data with anyone for advertising.</li>
+</ul>
+
+<h2>What DIC processes, and when</h2>
+<p>A lookup happens only when you (a) rest the pointer on an English word for about half a second, (b) select text, or (c) click a follow-up question inside the DIC popup. In Settings you can switch the trigger to "hold Alt/Option" or "selection only".</p>
+<table>
+<tr><th>Data</th><th>Purpose</th><th>Where it goes</th></tr>
+<tr><td>The word or phrase you looked up (up to 200 characters), the sentence it is in (up to 500 characters), and up to 800 characters of surrounding text from the same paragraph</td><td>To generate an explanation that fits the context</td><td>Sent from your browser directly to Google's Gemini API (<code>generativelanguage.googleapis.com</code>). Not sent to the developer.</td></tr>
+<tr><td>Your Gemini API key</td><td>To authenticate your requests to Google</td><td>Stored on your device in Chrome's extension storage. Sent only to Google's Gemini API as the request credential. Not sent to the developer.</td></tr>
+<tr><td>Your settings (trigger mode, dwell time, explanation language, model name)</td><td>To remember your preferences</td><td>Stored on your device only</td></tr>
+<tr><td>Recent explanations (up to 100)</td><td>To avoid repeating the same request</td><td>Kept in memory and in Chrome's session storage on your device; cleared when the browser closes, and after 24 hours at most</td></tr>
+</table>
+<p>DIC does <strong>not</strong> send page addresses (URLs), page titles, whole pages, your browsing history, form inputs, or passwords. DIC does not read text inside input fields or editable areas.</p>
+
+<h2>Third parties</h2>
+<p><strong>Google Gemini API.</strong> The excerpt described above is processed by Google under the terms you accepted when you created your API key. Google's handling of that data, including whether content sent through the free tier may be used to improve Google's products, is governed by Google's <a href="https://ai.google.dev/gemini-api/terms">Gemini API terms</a> and <a href="https://policies.google.com/privacy">privacy policy</a>. Any usage charges are between you and Google.</p>
+<p><strong>Speech.</strong> The "read aloud" button uses your browser's built-in speech synthesis. Depending on the voice your browser selects, the browser itself may send the word being spoken to its speech service.</p>
+<p><strong>Optional local gateway.</strong> Advanced users can route requests through a program running on their own computer (<code>127.0.0.1</code>). In that mode the same excerpt is sent to that local program instead of directly to Google.</p>
+<p>DIC shares data with no other party.</p>
+
+<h2>Founding-price waitlist (optional)</h2>
+<p>DIC links to an optional sign-up form hosted on Google Forms. If you choose to fill it in, the developer receives the email address and plan preference you enter. This is used only to contact you about DIC's paid plan. It is not linked to anything you do in the extension, and you can ask for it to be deleted at any time using the contact below.</p>
+
+<h2>Limited Use</h2>
+<p>DIC's use of user data complies with the <a href="https://developer.chrome.com/docs/webstore/program-policies/policies">Chrome Web Store User Data Policy</a>, including the Limited Use requirements. User data is used only to provide DIC's single purpose, explaining text you choose to look up. It is not transferred except as described above, is not used for advertising, is not used to determine creditworthiness, and is not read by any human on the developer's side, because the developer never receives it.</p>
+
+<h2>Your choices</h2>
+<ul>
+<li>Remove your API key or change the trigger mode at any time in DIC's Settings.</li>
+<li>Uninstalling DIC deletes everything it stored on your device.</li>
+<li>You can revoke or delete your API key at any time in <a href="https://aistudio.google.com/apikey">Google AI Studio</a>.</li>
+</ul>
+
+<h2>Children</h2>
+<p>DIC is not directed to children under 13 and does not knowingly collect personal information from them.</p>
+
+<h2>Changes</h2>
+<p>If DIC's data handling changes, for example when a paid plan is introduced, this policy will be updated before the change takes effect and the effective date above will change.</p>
+
+<h2>Contact</h2>
+<p>Questions or deletion requests: <a href="mailto:CONTACT_EMAIL">CONTACT_EMAIL</a></p>
+</main></body></html>

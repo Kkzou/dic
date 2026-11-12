@@ -14,4 +14,10 @@ function renderFounding(box) {
   const a = document.createElement('a'); a.className = 'btn ghost'; a.href = FOUNDING.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = '预约创始价';
   box.replaceChildren(h, p, a); box.hidden = false;
 }
-document.addEventListener('DOMContentLoaded', () => renderFounding(document.getElementById('founding')));
+// 隐私政策页面的公开地址。留空时界面里的"Privacy policy"链接不显示。
+const PRIVACY_POLICY_URL = '';
+document.addEventListener('DOMContentLoaded', () => {
+  renderFounding(document.getElementById('founding'));
+  const pp = document.getElementById('pp');
+  if (pp) { if (PRIVACY_POLICY_URL) pp.href = PRIVACY_POLICY_URL; else pp.remove(); }
+});

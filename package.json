@@ -1,6 +1,6 @@
 {
   "name": "dic",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": true,
   "description": "DIC — 上下文智能词典：悬停即解释的 Chrome 扩展（自带 Gemini Key 即用），可选本地网关",
   "type": "module",
