@@ -2,7 +2,7 @@
 // 两种模式（设置页切换）：
 //   byok    —— Bring Your Own Key：用户把自己的 Gemini API Key 填在设置页，这里直接调用 Gemini。默认，无需本地网关。
 //   gateway —— 进阶：请求发给本机 127.0.0.1:8787 的 Node 网关，Key 存在电脑的 .env.local 里。
-import { DEFAULT_MODEL, LIMITS, RateLimiter, validate, callGemini, err } from './core.js';
+import { DEFAULT_MODEL, LIMITS, RateLimiter, validate, callGemini, streamGemini, err } from './core.js';
 
 const GATEWAY = 'http://127.0.0.1:8787';
 const CACHE_MAX = 100, CACHE_TTL = 24 * 3600 * 1000;
@@ -32,39 +32,47 @@ async function cacheSet(key, value) {
   chrome.storage.session.set({ [key]: hit });
 }
 
-// 模式 byok：在 service worker 里直接调 Gemini（逻辑与网关完全相同，来自 core.js）
-async function explainDirect(payload, s) {
+// 模式 byok：在 service worker 里直接调 Gemini（逻辑与网关完全相同，来自 core.js）。
+// 先走流式（边生成边把片段交给 onPartial）；流式出任何意外都退回已验证的非流式调用。
+async function explainDirect(payload, s, onPartial, signal) {
   const { value, error } = validate(payload);
   if (error) return err('BAD_REQUEST', error);
   if (!s.geminiApiKey) return err('NO_API_KEY', '请在设置页填入你的 Gemini API Key');
   if (!limiter.take()) return err('RATE_LIMITED');
-  const r = await callGemini({ apiKey: s.geminiApiKey, model: s.geminiModel || DEFAULT_MODEL, value });
-  return r.ok ? { ok: true, depth: value.depth, result: r.result } : r;
+  const args = { apiKey: s.geminiApiKey, model: s.geminiModel || DEFAULT_MODEL, value, signal };
+  let r = await streamGemini({ ...args, onPartial });
+  if (!r && !signal?.aborted) r = { ...(await callGemini(args)), fellBack: true };
+  if (!r) return err('TIMEOUT');
+  return r.ok ? { ...r, depth: value.depth } : r;
 }
 
-// 模式 gateway：转发给本地网关
-async function explainViaGateway(payload) {
+// 模式 gateway：转发给本地网关（不流式）
+async function explainViaGateway(payload, signal) {
   let res;
   try {
     res = await fetch(`${GATEWAY}/explain`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload), signal: AbortSignal.timeout(LIMITS.timeoutMs + 1000),
+      body: JSON.stringify(payload), signal: AbortSignal.any([signal, AbortSignal.timeout(LIMITS.timeoutMs + 1000)]),
     });
   } catch (e) {
-    return e.name === 'TimeoutError' ? err('TIMEOUT') : err('SERVICE_DOWN');
+    return e.name === 'TimeoutError' || e.name === 'AbortError' ? err('TIMEOUT') : err('SERVICE_DOWN');
   }
   try { return await res.json(); } catch { return err('BAD_MODEL_OUTPUT'); }
 }
 
-async function explain(payload) {
+async function explain(payload, onPartial, signal) {
   const t0 = performance.now();
+  const ms = () => `${(performance.now() - t0).toFixed(0)}ms`;
+  const tag = `[DIC] ${payload.kind === 'question' ? 'Q:' : ''}${String(payload.term).slice(0, 30)} ${payload.depth || ''}`;
   const key = await hashKey(payload);
   const cached = await cacheGet(key);
-  if (cached) { console.debug(`[DIC] ${payload.term} ${payload.depth} cache ${(performance.now() - t0).toFixed(0)}ms`); return { ok: true, cached: true, result: cached }; }
+  if (cached) { console.debug(`${tag} cache ${ms()}`); return { ok: true, cached: true, result: cached }; }
   const s = await settings();
-  const data = s.mode === 'gateway' ? await explainViaGateway(payload) : await explainDirect(payload, s);
+  let first = '';
+  const data = s.mode === 'gateway' ? await explainViaGateway(payload, signal)
+    : await explainDirect(payload, s, (p) => { if (!first && p.meaningHere) first = ` 首字 ${ms()}`; onPartial?.(p); }, signal);
   if (data.ok) cacheSet(key, data.result);
-  console.debug(`[DIC] ${payload.term} ${payload.depth} ${s.mode} ${(performance.now() - t0).toFixed(0)}ms${data.retried ? ' retried' : ''}${data.ok ? '' : ' ' + data.code}`);
+  console.debug(`${tag} ${s.mode}${first} 完成 ${ms()}${data.fellBack ? ' 非流式回退' : ''}${data.retried ? ' retried' : ''}${data.ok ? '' : ' ' + data.code}`);
   return { ...data, requestId: payload.requestId ?? null };
 }
 
@@ -89,9 +97,20 @@ async function health() {
   } catch { return { ...err('UPSTREAM_ERROR', '无法连接 Gemini，请检查网络'), mode: 'byok', model, apiKeyConfigured: true }; }
 }
 
+// 解释请求走长连接（port）：这样才能把流式片段一块块推给页面；页面断开连接（鼠标移走、关闭弹窗）时取消请求，不浪费额度。
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== 'explain') return;
+  const ac = new AbortController(); let open = true;
+  const post = (m) => { if (open) { try { port.postMessage(m); } catch {} } };
+  port.onDisconnect.addListener(() => { open = false; ac.abort(); });
+  port.onMessage.addListener(async (msg) => {
+    const data = await explain(msg.payload, (partial) => post({ partial }), ac.signal);
+    post({ done: true, data });
+  });
+});
+
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
-  if (msg?.type === 'explain') explain(msg.payload).then(reply);
-  else if (msg?.type === 'ping') reply({ ok: true }); // 预热：内容脚本在悬停早期发来，只为唤醒 worker
+  if (msg?.type === 'ping') reply({ ok: true }); // 预热：内容脚本在悬停早期发来，只为唤醒 worker
   else if (msg?.type === 'health') health().then(reply);
   else if (msg?.type === 'openOptions') chrome.runtime.openOptionsPage().then(() => reply({ ok: true }));
   else return false;

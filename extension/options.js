@@ -1,5 +1,5 @@
 const $ = (id) => document.getElementById(id);
-const defaults = { mode: 'byok', geminiApiKey: '', geminiModel: '', trigger: 'hover', dwell: 600, language: 'zh-CN' };
+const defaults = { mode: 'byok', geminiApiKey: '', geminiModel: '', trigger: 'hover', dwell: 450, language: 'zh-CN' };
 
 chrome.storage.local.get(defaults).then((s) => {
   $('mode').value = s.mode; $('apiKey').value = s.geminiApiKey; $('model').value = s.geminiModel;
@@ -18,7 +18,7 @@ $('toggleKey').addEventListener('click', () => {
   const pw = $('apiKey').type === 'password'; $('apiKey').type = pw ? 'text' : 'password'; $('toggleKey').textContent = pw ? '隐藏' : '显示';
 });
 for (const id of ['trigger', 'language']) $(id).addEventListener('change', () => chrome.storage.local.set({ [id]: $(id).value }));
-$('dwell').addEventListener('change', () => chrome.storage.local.set({ dwell: Math.min(2000, Math.max(200, Number($('dwell').value) || 600)) }));
+$('dwell').addEventListener('change', () => chrome.storage.local.set({ dwell: Math.min(2000, Math.max(200, Number($('dwell').value) || 450)) }));
 
 async function check() {
   const st = $('status'); st.className = ''; st.textContent = '检查中…';

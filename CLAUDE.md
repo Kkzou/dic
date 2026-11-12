@@ -10,7 +10,7 @@
 8. 所有缩写首次出现要给出完整英文名称和中文解释（代码注释、文案、README 都算）。
 9. 性能不是最后再做：避免重复请求、过大上下文、无用监听器。内容脚本 + CSS 保持 < 30 KB。
 10. 不执行 `git reset --hard`、强制推送或覆盖用户未提交的修改。
-11. 所有网络请求只从 MV3 service worker（`background.js`）发出；内容脚本一律走 `chrome.runtime.sendMessage`。模型相关逻辑（校验、提示词、schema、解析、限流）只写在 `extension/core.js`，扩展与网关共用，不复制。
+11. 所有网络请求只从 MV3 service worker（`background.js`）发出；内容脚本一律走 `chrome.runtime.sendMessage`。模型相关逻辑（校验、提示词、schema、流式与解析、限流）只写在 `extension/core.js`，扩展与网关共用，不复制。解释请求走长连接 port（才能推流式片段、才能取消）；流式失败必须能退回非流式。
 12. 用户可见错误文案必须对应错误码枚举：`BAD_REQUEST NO_API_KEY RATE_LIMITED TIMEOUT UPSTREAM_ERROR BAD_MODEL_OUTPUT SERVICE_DOWN`，不允许散落的硬编码提示。
 13. 不用 `innerHTML` 渲染任何模型输出。
 

@@ -8,7 +8,8 @@
     --shadow: 0 8px 28px rgba(0, 0, 0, .5), 0 1px 3px rgba(0, 0, 0, .4); }
 }
 .dic {
-  position: fixed; z-index: 2147483647; width: min(340px, calc(100vw - 32px)); box-sizing: border-box;
+  position: fixed; z-index: 2147483647; width: min(360px, calc(100vw - 32px)); box-sizing: border-box;
+  max-height: 70vh; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
   padding: 14px 16px 12px; border-radius: 12px; background: var(--bg); color: var(--fg);
   border: 1px solid var(--line); box-shadow: var(--shadow);
   font: 14px/1.55 -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Noto Sans CJK SC", sans-serif;
@@ -19,9 +20,12 @@
 @media (prefers-reduced-motion: reduce) { .dic { transition: none; transform: none; } }
 .dic * { box-sizing: border-box; margin: 0; padding: 0; font: inherit; color: inherit; }
 
-.head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-bottom: 8px; }
 .term { font-weight: 650; font-size: 15px; letter-spacing: .01em; }
-.full { color: var(--muted); font-size: 12.5px; }
+.term.question { font-size: 14px; font-weight: 600; line-height: 1.45; }
+.full, .pron { color: var(--muted); font-size: 12.5px; }
+.say { display: inline-flex; align-items: center; background: none; border: 0; cursor: pointer; color: var(--accent); padding: 3px; border-radius: 6px; }
+.say:hover { background: var(--tint); }
 .crumb { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
 .crumb button { color: var(--accent); }
 
