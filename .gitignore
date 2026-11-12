@@ -3,3 +3,5 @@
 node_modules/
 .DS_Store
 *.log
+# 内部讨论材料，不进仓库
+/*讨论稿*.md

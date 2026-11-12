@@ -116,4 +116,10 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   else return false;
   return true; // 异步回复
 });
-chrome.action.onClicked.addListener(() => chrome.runtime.openOptionsPage());
+// 首次安装：打开三步配置引导页。点工具栏图标：还没配置 Key 就去引导页，配置过了去设置页。
+const openWelcome = () => chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+chrome.runtime.onInstalled.addListener((d) => { if (d.reason === 'install') openWelcome(); });
+chrome.action.onClicked.addListener(async () => {
+  const s = await settings();
+  if (s.mode === 'byok' && !s.geminiApiKey) openWelcome(); else chrome.runtime.openOptionsPage();
+});

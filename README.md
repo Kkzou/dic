@@ -43,7 +43,7 @@ DIC 的做法：鼠标停在词上 0.6 秒，原位弹出一个小窗，把**这
 
 1. 下载本仓库（GitHub 页面右上角 **Code → Download ZIP**，解压），或 `git clone https://github.com/Kkzou/dic.git`
 2. Chrome 打开 `chrome://extensions` → 右上角开「开发者模式」→「加载已解压的扩展程序」→ 选 `extension/` 文件夹
-3. 点扩展图标进设置页，粘贴你的 Gemini API Key（免费申请：https://aistudio.google.com/apikey ）。状态变成 *已连接 Gemini ✓* 即可
+3. 安装后会自动打开三步配置引导页：打开 Google AI Studio → 创建并复制 API Key → 粘贴，粘贴后自动连接并当场试读
 4. 打开任何英文文章，把鼠标停在一个词上约半秒
 
 Key 只保存在你这台电脑的浏览器本地存储里，只发往 Google，不经过任何第三方服务器。
@@ -116,6 +116,7 @@ extension/
   background.js     Service worker（ES module）：扩展里唯一发网络请求的地方；BYOK 流式直连 / 网关转发；长连接推送片段、断开即取消；两级 LRU 缓存（100 条 / 24h）
   content.js        内容脚本：caretPositionFromPoint 取词 → 句子/上下文提取 → Shadow DOM 弹窗（定边定位 + 内部滚动）→ 状态机 → 逐步渲染 → Deep Loop → 追问 / 嵌套 → 朗读
   content.css       弹窗样式（蓝色调，跟随系统深浅色，adoptedStyleSheets 注入）
+  welcome.*         三步配置引导页：安装后自动打开；粘贴 Key 即连接，页内自带试读段落
   options.*         设置页：连接方式（BYOK / 网关）、API Key、模型名、连接测试、唤醒方式、解释语言
   reader.*          阅读页：粘贴 / 打开 txt、md
   icons/            图标
