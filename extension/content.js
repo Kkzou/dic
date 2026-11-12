@@ -96,7 +96,6 @@
     const term = r?.term || q.term;
     h.append(el('div', 'term', term));
     if (/[A-Za-z]/.test(term) && 'speechSynthesis' in window) h.append(speaker(q, term));
-    if (r?.pronunciation) h.append(el('div', 'pron', r.pronunciation));
     if (r?.fullForm) h.append(el('div', 'full', r.fullForm));
     return h;
   }
@@ -147,7 +146,7 @@
     q._deepPending = true; state = 'deep-loading'; render(q, q.fast, 'deep-loading');
     const id = seq, f = q.fast;
     // 深入内容只取新增的三项，短解释部分沿用已有的（界面不跳动，模型也不用重写一遍）
-    const merge = (d) => ({ ...f, fullForm: f.fullForm || d.fullForm || '', pronunciation: f.pronunciation || d.pronunciation || '', details: d.details || '', relatedConcepts: d.relatedConcepts || [], followUpQuestions: d.followUpQuestions || [] });
+    const merge = (d) => ({ ...f, fullForm: f.fullForm || d.fullForm || '', details: d.details || '', relatedConcepts: d.relatedConcepts || [], followUpQuestions: d.followUpQuestions || [] });
     const r = await ask(pay(q, 'deep', id), (p) => { if (id === seq && p.details) render(q, merge({ details: p.details }), 'partial'); });
     q._deepPending = false;
     if (id !== seq) return;

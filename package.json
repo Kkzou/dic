@@ -1,6 +1,6 @@
 {
   "name": "dic",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "DIC — 上下文智能词典：悬停即解释的 Chrome 扩展（自带 Gemini Key 即用），可选本地网关",
   "type": "module",
@@ -10,8 +10,9 @@
   "scripts": {
     "start": "node --env-file-if-exists=.env.local server/server.mjs",
     "start:mock": "LLM_PROVIDER=mock node server/server.mjs",
-    "check": "node --check extension/core.js && node --check extension/background.js && node --check extension/content.js && node --check extension/options.js && node --check extension/welcome.js && node --check extension/reader.js && node --check server/server.mjs",
-    "test": "npm run check && node --test tests/core.test.mjs && node tests/smoke.mjs"
+    "check": "node --check extension/core.js && node --check extension/background.js && node --check extension/content.js && node --check extension/options.js && node --check extension/welcome.js && node --check extension/founding.js && node --check extension/reader.js && node --check server/server.mjs",
+    "test": "npm run check && node --test tests/core.test.mjs && node tests/smoke.mjs",
+    "package": "rm -rf dist && mkdir -p dist && cd extension && zip -qr ../dist/dic-extension.zip . -x '.*' && cd .. && ls -lh dist"
   },
   "license": "UNLICENSED"
 }

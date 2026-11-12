@@ -23,7 +23,7 @@
 .head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-bottom: 8px; }
 .term { font-weight: 650; font-size: 15px; letter-spacing: .01em; }
 .term.question { font-size: 14px; font-weight: 600; line-height: 1.45; }
-.full, .pron { color: var(--muted); font-size: 12.5px; }
+.full { color: var(--muted); font-size: 12.5px; }
 .say { display: inline-flex; align-items: center; background: none; border: 0; cursor: pointer; color: var(--accent); padding: 3px; border-radius: 6px; }
 .say:hover { background: var(--tint); }
 .crumb { color: var(--muted); font-size: 12px; margin-bottom: 6px; }

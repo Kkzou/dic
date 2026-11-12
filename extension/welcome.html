@@ -29,6 +29,7 @@ input:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-o
 #success h2{font-size:19px;margin:0 0 6px;color:var(--ok)}
 #success .how{margin:0 0 14px;font-size:15px}
 #try{font:17px/1.8 Georgia,"Times New Roman","Songti SC",serif;margin:0;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--line)}
+#founding{margin-top:20px;padding:18px 22px;border-radius:14px;border:1px solid var(--line)}#founding h3{font-size:16px;margin:0 0 4px}#founding p{margin:0 0 12px;font-size:14.5px;color:var(--muted)}
 .fine{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;line-height:1.7}
 .fine p{margin:0 0 8px}
 a{color:var(--accent)}
@@ -64,9 +65,11 @@ a{color:var(--accent)}
   <div class="row" style="margin-top:16px"><a class="btn ghost" href="options.html">打开设置</a></div>
 </div>
 
+<div id="founding" hidden></div>
+
 <div class="fine">
   <p>你的 API Key 只保存在这台电脑的浏览器里，只会发送给 Google 的 Gemini 服务。DIC 不会把它发送到我们或任何第三方的服务器，我们看不到也拿不到你的密钥。</p>
-  <p>DIC 订阅不包含 Google 的 API 使用费用。Google 提供免费额度；免费额度的大小和超出后可能产生的费用由 Google 决定。</p>
+  <p>DIC 目前免费使用，但不包含 Google 的 API 使用费用。Google 提供免费额度；免费额度的大小和超出后可能产生的费用由 Google 决定。</p>
   <p>请像保管密码一样保管密钥，不要分享给他人。你可以随时在 Google AI Studio 里删除它。</p>
 </div>
-</main><script src="welcome.js"></script><script src="content.js"></script></body></html>
+</main><script src="founding.js"></script><script src="welcome.js"></script><script src="content.js"></script></body></html>

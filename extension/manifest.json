@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DIC — 上下文智能词典",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "鼠标停在词上，原位看到 Gemini 的上下文解释。不打断阅读心流。填入自己的 Gemini API Key 即可使用。",
   "permissions": [
     "storage"

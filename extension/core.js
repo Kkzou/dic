@@ -22,25 +22,24 @@ export const err = (code, message) => ({ ok: false, code, message: message || ME
 export const SCHEMA = {
   type: 'OBJECT',
   properties: {
-    term: { type: 'STRING' }, fullForm: { type: 'STRING' }, pronunciation: { type: 'STRING' }, meaningHere: { type: 'STRING' },
+    term: { type: 'STRING' }, fullForm: { type: 'STRING' }, meaningHere: { type: 'STRING' },
     contextLink: { type: 'STRING' }, example: { type: 'STRING' }, details: { type: 'STRING' },
     relatedConcepts: { type: 'ARRAY', items: { type: 'STRING' } },
     followUpQuestions: { type: 'ARRAY', items: { type: 'STRING' } },
   },
-  required: ['term', 'fullForm', 'pronunciation', 'meaningHere', 'contextLink', 'example', 'details', 'relatedConcepts', 'followUpQuestions'],
+  required: ['term', 'fullForm', 'meaningHere', 'contextLink', 'example', 'details', 'relatedConcepts', 'followUpQuestions'],
 };
-const STRING_FIELDS = ['term', 'fullForm', 'pronunciation', 'meaningHere', 'contextLink', 'example', 'details'];
+const STRING_FIELDS = ['term', 'fullForm', 'meaningHere', 'contextLink', 'example', 'details'];
 
 export const SYSTEM = `你是 DIC，一个嵌入阅读页面的上下文词典。用户正在阅读英文或中文材料，选中了一个词、缩写或短语，或者针对某个词提出了追问。
 规则：
 1. 只根据给出的句子和上下文解释"这里"的含义，不要泛泛而谈。
 2. 缩写必须给出完整英文全称；不确定就把 fullForm 留空，绝不编造。非缩写时 fullForm 为空字符串。
 3. 用简体中文解释，保留术语英文原文；专业英文缩写不要翻译掉。
-4. pronunciation：当选中内容是英文单词、短语或缩写时，给出美式 IPA（International Phonetic Alphabet，国际音标），用斜杠包裹，如 /ˌdʒiːəˈɡræfɪk/；缩写按实际读法。中文内容或不确定时留空。
-5. fast 模式：meaningHere + contextLink + example 合计 120–220 字，details/relatedConcepts/followUpQuestions 留空。
-6. deep 模式：界面上已经显示了短解释，不要重复。meaningHere、contextLink、example、fullForm、pronunciation 一律留空字符串；只写 details（更完整的机制或背景，150–300 字）、relatedConcepts（2–3 个相邻概念，每项"概念：一句话关系"）、followUpQuestions（最多 3 个值得追问的问题）。
-7. answer 模式：用户在追问一个问题。term 原样返回这个问题；meaningHere 直接、完整地回答这个问题（150–260 字），结合给出的原文语境；contextLink 用一句话说明答案与原文的联系，可留空；fullForm、pronunciation、example、details、relatedConcepts 留空；followUpQuestions 给最多 2 个更进一步的问题。不要把问题当成词来解释。
-8. 不确定时明确说"不确定"，不要猜。只输出 JSON。`;
+4. fast 模式：meaningHere + contextLink + example 合计 120–220 字，details/relatedConcepts/followUpQuestions 留空。
+5. deep 模式：界面上已经显示了短解释，不要重复。meaningHere、contextLink、example、fullForm 一律留空字符串；只写 details（更完整的机制或背景，150–300 字）、relatedConcepts（2–3 个相邻概念，每项"概念：一句话关系"）、followUpQuestions（最多 3 个值得追问的问题）。
+6. answer 模式：用户在追问一个问题。term 原样返回这个问题；meaningHere 直接、完整地回答这个问题（150–260 字），结合给出的原文语境；contextLink 用一句话说明答案与原文的联系，可留空；fullForm、example、details、relatedConcepts 留空；followUpQuestions 给最多 2 个更进一步的问题。不要把问题当成词来解释。
+7. 不确定时明确说"不确定"，不要猜。只输出 JSON。`;
 
 // 校验并裁剪请求体。返回 { value } 或 { error }。kind：term（解释一个词）| question（回答一个追问）
 export function validate(b) {
@@ -63,7 +62,7 @@ export function normalize(raw, term) {
   const s = (v) => (typeof v === 'string' ? v.trim() : '');
   const arr = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string').map((x) => x.trim()).filter(Boolean).slice(0, 3) : []);
   return {
-    term: s(raw.term) || term, fullForm: s(raw.fullForm), pronunciation: s(raw.pronunciation), meaningHere: s(raw.meaningHere) || '（模型未给出解释）',
+    term: s(raw.term) || term, fullForm: s(raw.fullForm), meaningHere: s(raw.meaningHere) || '（模型未给出解释）',
     contextLink: s(raw.contextLink), example: s(raw.example), details: s(raw.details),
     relatedConcepts: arr(raw.relatedConcepts), followUpQuestions: arr(raw.followUpQuestions),
   };
@@ -212,7 +211,6 @@ export function mockExplain(v) {
   return normalize({
     term: v.term,
     fullForm: isAbbr ? `（mock）${v.term} 的英文全称` : '',
-    pronunciation: /[A-Za-z]/.test(v.term) ? '/mɒk/' : '',
     meaningHere: `（mock 模式，未调用模型）在这句话里，"${v.term}" 指的是一个示例概念；真实运行时这里会是 Gemini 基于当前句子给出的解释。`,
     contextLink: v.sentence ? `它出现在："${v.sentence.slice(0, 60)}${v.sentence.length > 60 ? '…' : ''}"` : '',
     example: `例：The report explains what ${v.term} means in this context.`,

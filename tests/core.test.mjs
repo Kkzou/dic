@@ -91,12 +91,12 @@ test('partialFromText：JSON 没写完也能抠出已有字段，含半截字符
   assert.deepEqual(partialFromText('{"ter'), {});
 });
 test('streamGemini：逐块回调 onPartial，最终结果完整；走的是 streamGenerateContent', async () => {
-  const full = JSON.stringify({ term: 'HBM', fullForm: 'High Bandwidth Memory', pronunciation: '/eɪtʃ biː em/', meaningHere: '高带宽内存', contextLink: '', example: '', details: '', relatedConcepts: [], followUpQuestions: [] });
+  const full = JSON.stringify({ term: 'HBM', fullForm: 'High Bandwidth Memory', meaningHere: '高带宽内存', contextLink: '', example: '', details: '', relatedConcepts: [], followUpQuestions: [] });
   const cut = [full.slice(0, 30), full.slice(30, 90), full.slice(90)];
   const fetchFn = fakeFetch([sseRes([sse(cut[0]), sse(cut[1]).slice(0, 20), sse(cut[1]).slice(20) + sse(cut[2])])]); // 故意把一个 SSE 事件劈成两个网络包
   const seen = [];
   const r = await streamGemini({ apiKey: 'K', model: 'm', value: validate({ term: 'HBM' }).value, fetchFn, onPartial: (p) => seen.push(p) });
-  assert.equal(r.ok, true); assert.equal(r.result.fullForm, 'High Bandwidth Memory'); assert.equal(r.result.pronunciation, '/eɪtʃ biː em/');
+  assert.equal(r.ok, true); assert.equal(r.result.fullForm, 'High Bandwidth Memory'); assert.ok(!('pronunciation' in r.result));
   assert.equal(seen.length, 3); assert.equal(seen[0].term, 'HBM'); assert.equal(seen.at(-1).meaningHere, '高带宽内存');
   assert.match(fetchFn.calls[0].url, /:streamGenerateContent\?alt=sse$/);
 });
@@ -122,7 +122,7 @@ test('callGemini：503 自动重试一次后成功；连续 503 报"暂时繁忙
   const r2 = await callGemini({ apiKey: 'K', model: 'm', value: validate({ term: 'X' }).value, fetchFn: bad });
   assert.equal(r2.code, 'UPSTREAM_ERROR'); assert.match(r2.message, /繁忙/); assert.equal(bad.calls.length, 2);
 });
-test('mockExplain：追问返回的 term 是问题本身，且不给全称/音标', () => {
+test('mockExplain：追问返回的 term 是问题本身，且不给全称', () => {
   const r = mockExplain(validate({ term: '为什么要分散？', kind: 'question', parentTerms: ['Geos'] }).value);
-  assert.equal(r.term, '为什么要分散？'); assert.equal(r.fullForm, ''); assert.equal(r.pronunciation, ''); assert.ok(r.meaningHere.length > 10);
+  assert.equal(r.term, '为什么要分散？'); assert.equal(r.fullForm, ''); assert.ok(r.meaningHere.length > 10);
 });
